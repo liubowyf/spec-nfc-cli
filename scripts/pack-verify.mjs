@@ -10,7 +10,6 @@ const PROJECT_ROOT = path.resolve(SCRIPT_DIR, "..");
 const CONFIG_PATH = path.join(PROJECT_ROOT, "public", "assembly.config.json");
 
 const options = parseArgs(process.argv.slice(2));
-const cwd = path.resolve(options.cwd || process.cwd());
 const config = existsSync(CONFIG_PATH)
   ? JSON.parse(readFileSync(CONFIG_PATH, "utf8"))
   : {
@@ -19,6 +18,25 @@ const config = existsSync(CONFIG_PATH)
         whitelistTerms: []
       }
     };
+const verificationTarget = resolveVerificationTarget({
+  requestedCwd: options.cwd,
+  defaultCwd: process.cwd(),
+  config
+});
+
+if (!verificationTarget.ok) {
+  finish(
+    {
+      ok: false,
+      cwd: toRelative(path.resolve(options.cwd || process.cwd())),
+      error: verificationTarget.error
+    },
+    options
+  );
+  process.exit(1);
+}
+
+const cwd = verificationTarget.cwd;
 const blockedPrefixes = [
   ".omx/",
   ".serena/",
@@ -65,6 +83,7 @@ const hits = scanBlacklist(files, config.audit?.blacklistTerms || [], config.aud
 const result = {
   ok: blocked.length === 0 && hits.length === 0,
   cwd: toRelative(cwd),
+  assembledPublishView: verificationTarget.assembledPublishView,
   packageName: packJson[0]?.name ?? null,
   fileCount: files.length,
   blockedFiles: blocked,
@@ -83,6 +102,56 @@ function scanBlacklist(files, blacklistTerms, whitelistTerms) {
       .filter((term) => normalized.includes(term) && !whitelist.has(term))
       .map((term) => ({ file: normalized, term }));
   });
+}
+
+function resolveVerificationTarget({ requestedCwd, defaultCwd, config }) {
+  if (requestedCwd) {
+    return {
+      ok: true,
+      cwd: path.resolve(requestedCwd),
+      assembledPublishView: false
+    };
+  }
+
+  if (!existsSync(CONFIG_PATH)) {
+    return {
+      ok: true,
+      cwd: path.resolve(defaultCwd),
+      assembledPublishView: false
+    };
+  }
+
+  const npmPublishTarget = config.targets?.["npm-publish"];
+  if (!npmPublishTarget?.rootDir) {
+    return {
+      ok: true,
+      cwd: path.resolve(defaultCwd),
+      assembledPublishView: false
+    };
+  }
+
+  const assembleArgs = [path.join(SCRIPT_DIR, "assemble-public.mjs"), "--target", "npm-publish", "--json"];
+  const assembleResult = spawnSync(process.execPath, assembleArgs, {
+    cwd: PROJECT_ROOT,
+    encoding: "utf8"
+  });
+
+  if (assembleResult.status !== 0) {
+    return {
+      ok: false,
+      error: {
+        code: "PACK_VERIFY_ASSEMBLY_FAILED",
+        message: "pack 验证前自动装配 npm 发布视图失败",
+        details: (assembleResult.stderr || assembleResult.stdout || "").trim()
+      }
+    };
+  }
+
+  return {
+    ok: true,
+    cwd: path.join(resolveOutputRoot(config.outputRoot || "dist/public"), npmPublishTarget.rootDir),
+    assembledPublishView: true
+  };
 }
 
 function parseArgs(argv) {
@@ -116,6 +185,7 @@ function finish(result, options) {
   }
 
   process.stdout.write(`pack 验证目录：${result.cwd}\n`);
+  process.stdout.write(`自动装配 publish 视图：${result.assembledPublishView ? "是" : "否"}\n`);
   process.stdout.write(`文件数：${result.fileCount ?? 0}\n`);
   process.stdout.write(`阻断文件：${result.blockedFiles?.length ?? 0}\n`);
   process.stdout.write(`敏感词命中：${result.sensitiveHits?.length ?? 0}\n`);
@@ -123,6 +193,13 @@ function finish(result, options) {
 
 function toRelative(targetPath) {
   return path.relative(PROJECT_ROOT, targetPath).split(path.sep).join("/");
+}
+
+function resolveOutputRoot(candidate) {
+  if (path.isAbsolute(candidate)) {
+    return candidate;
+  }
+  return path.resolve(PROJECT_ROOT, candidate);
 }
 
 function printHelp() {

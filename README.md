@@ -173,6 +173,7 @@ node ./scripts/pack-verify.mjs --json
 
 如果你在开发发布面，重点检查：
 
+- `pack-verify` 默认会自动装配并验证 `dist/public/npm-publish/`，确保验证的是公开发布面而不是内部工作仓根
 - 公开 README / examples / specs 样例是否仍然准确
 - `specnfc --help`、`specnfc explain install` 是否与公开安装路径一致
 - `npm pack --dry-run --json` 是否没有把内部路径打进包内

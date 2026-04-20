@@ -17,6 +17,8 @@ npm test
 node ./scripts/pack-verify.mjs --json
 ```
 
+说明：`pack-verify` 在内部源仓执行时会先装配 `dist/public/npm-publish/`，然后只校验公开 npm 发布视图。
+
 ## 变更建议
 
 - 功能改动优先补充或更新公开样例：`examples/`、`specs/public-samples/`

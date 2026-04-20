@@ -56,6 +56,7 @@ test("公开源码面会暴露正确的 manifest 与样例资产", async () => {
     assert.ok(githubManifest.files.includes("bin"));
     assert.equal(npmManifest.private, false);
     assert.equal(npmManifest.publishConfig.access, "public");
+    assert.equal(npmManifest.publishConfig.registry, "https://registry.npmjs.org/");
     assert.ok(Array.isArray(npmManifest.files));
     assert.ok(npmManifest.files.includes("bin"));
     assert.ok(npmManifest.files.includes(".specnfc/design"));
@@ -101,4 +102,23 @@ test("pack-verify 会阻断 npm 包中的内部路径泄漏", async () => {
   } finally {
     await rm(outputRoot, { recursive: true, force: true });
   }
+});
+
+test("内部源仓执行 pack-verify 会自动装配 npm 发布视图", async () => {
+  if (!HAS_ASSEMBLER) {
+    return;
+  }
+
+  const packResult = spawnSync(process.execPath, [PACK_VERIFY_PATH, "--json"], {
+    cwd: PROJECT_ROOT,
+    encoding: "utf8"
+  });
+
+  assert.equal(packResult.status, 0);
+  const json = JSON.parse(packResult.stdout);
+  assert.equal(json.ok, true);
+  assert.equal(json.assembledPublishView, true);
+  assert.equal(json.cwd, "dist/public/npm-publish");
+  assert.deepEqual(json.blockedFiles, []);
+  assert.deepEqual(json.sensitiveHits, []);
 });
