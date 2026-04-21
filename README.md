@@ -84,7 +84,7 @@ npx --yes spec-nfc@latest --help
 #### 方式 3：从源码开发
 
 ```bash
-git clone https://github.com/liubowyf/spec-nfc.git
+git clone https://github.com/liubowyf/spec-nfc-cli.git
 cd spec-nfc
 npm install
 npm test
@@ -268,7 +268,7 @@ status / doctor 持续收口
 ## 更新记录与 Releases
 
 - 更新记录：[`CHANGELOG.md`](./CHANGELOG.md)
-- GitHub Releases：[`Releases`](https://github.com/liubowyf/spec-nfc/releases)
+- GitHub Releases：[`Releases`](https://github.com/liubowyf/spec-nfc-cli/releases)
 - npm 页面：[`spec-nfc`](https://www.npmjs.com/package/spec-nfc)
 
 如果你是第一次接触 `specnfc`，建议优先看：
@@ -354,6 +354,12 @@ node ./scripts/pack-verify.mjs --json
 
 - 贡献说明：[CONTRIBUTING.md](./CONTRIBUTING.md)
 - Issue triage：[.github/ISSUE_TRIAGE.md](./.github/ISSUE_TRIAGE.md)
+- 维护者说明：[MAINTAINERS.md](./MAINTAINERS.md)
+
+## 支持
+
+- 使用帮助：[SUPPORT.md](./SUPPORT.md)
+- 安全披露：[SECURITY.md](./SECURITY.md)
 
 ## 安全
 

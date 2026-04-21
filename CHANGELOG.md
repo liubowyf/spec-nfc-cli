@@ -4,7 +4,7 @@
 
 同时可配合查看：
 
-- [GitHub Releases](https://github.com/liubowyf/spec-nfc/releases)
+- [GitHub Releases](https://github.com/liubowyf/spec-nfc-cli/releases)
 - [npm 包页面](https://www.npmjs.com/package/spec-nfc)
 
 ---

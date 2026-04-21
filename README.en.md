@@ -85,7 +85,7 @@ npx --yes spec-nfc@latest --help
 #### Option 3: Develop from source
 
 ```bash
-git clone https://github.com/liubowyf/spec-nfc.git
+git clone https://github.com/liubowyf/spec-nfc-cli.git
 cd spec-nfc
 npm install
 npm test
@@ -269,7 +269,7 @@ These skills are governed by repository protocol and document contracts, not by 
 ## Changelog & Releases
 
 - Changelog: [`CHANGELOG.md`](./CHANGELOG.md)
-- GitHub Releases: [`Releases`](https://github.com/liubowyf/spec-nfc/releases)
+- GitHub Releases: [`Releases`](https://github.com/liubowyf/spec-nfc-cli/releases)
 - npm package: [`spec-nfc`](https://www.npmjs.com/package/spec-nfc)
 
 If you are new to `specnfc`, read in this order:
@@ -355,6 +355,12 @@ Next iterations will strengthen:
 
 - Contribution guide: [CONTRIBUTING.md](./CONTRIBUTING.md)
 - Issue triage: [.github/ISSUE_TRIAGE.md](./.github/ISSUE_TRIAGE.md)
+- Maintainers: [MAINTAINERS.md](./MAINTAINERS.md)
+
+## Support
+
+- Usage help: [SUPPORT.md](./SUPPORT.md)
+- Security disclosure: [SECURITY.md](./SECURITY.md)
 
 ## Security
 
