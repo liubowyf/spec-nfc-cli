@@ -134,6 +134,90 @@ specnfc integration stage account-risk-api --cwd /path/to/repo --to aligned
 
 ---
 
+## 操作流程图
+
+### 新项目：从 0 到 1 的推荐命令链路
+
+适用场景：
+
+- 这是一个全新项目，或你准备把一个新仓按 `specnfc` 方式启动
+- 你希望明确知道每一步先执行什么命令、每个命令的意义是什么
+
+```mermaid
+flowchart TD
+    A[开始：准备一个新项目仓库] --> B[specnfc init --profile enterprise\n作用：初始化协议骨架，生成 .specnfc/.nfc/specs 与入口投影]
+    B --> C[specnfc status\n作用：确认仓已接入协议，并给出当前下一步建议]
+    C --> D[specnfc change create <change-id> --title <标题>\n作用：创建一条正式 change 工作对象]
+    D --> E[specnfc change check <change-id>\n作用：判断当前 change 所处阶段、缺失文档与阻断项]
+    E --> F{是否触发独立技术设计与选型？}
+    F -- 是 --> G[补 02-技术设计与选型.md\n适用于中高复杂度/涉及架构取舍/技术选型]
+    F -- 否 --> H[直接补 01-需求与方案.md 与 03-任务计划与执行.md]
+    G --> I{是否存在接口 / service / 多人协作依赖？}
+    H --> I
+    I -- 是 --> J[specnfc integration create/check/stage\n作用：提前对齐 provider/consumer/changes 的依赖与阻断]
+    I -- 否 --> K[持续补齐 change 主文档]
+    J --> K
+    K --> L[持续执行 specnfc status\n作用：看当前最该做什么]
+    K --> M[持续执行 specnfc doctor\n作用：查协议不一致、漂移与缺失]
+    L --> N[推进到 verify / accept 阶段]
+    M --> N
+    N --> O[完成 04-验收与交接.md\n作用：沉淀验收结论、交付说明与收口结果]
+    O --> P[结束：形成可长期维护的正式 dossier]
+```
+
+推荐理解：
+
+- `init`：让项目正式接入协议，不只是建目录
+- `status`：告诉你现在最该做什么
+- `change create`：创建正式工作对象
+- `change check`：判断当前 change 该补什么，不靠猜
+- `integration *`：在多人接口 / service 依赖存在时，先解决协作边界
+- `doctor`：在继续推进前查清楚哪里不一致
+
+### 成熟项目：如何接入，以及如何选择命令
+
+适用场景：
+
+- 项目已经在开发，甚至已经很成熟
+- 你想知道应该先 `init`、先 `status`、先 `doctor`，还是直接进入 `change`
+- 你想根据当前仓状态选择正确命令，而不是机械地全跑一遍
+
+```mermaid
+flowchart TD
+    A[开始：已有一个成熟项目仓库] --> B{仓库是否已接入 specnfc？}
+    B -- 否 --> C[specnfc init --profile enterprise\n作用：把已有仓接入协议控制面]
+    B -- 是 --> D[specnfc status\n作用：先看当前仓状态、活跃 change 与推荐下一步]
+    C --> D
+    D --> E{是否存在旧结构 / 漂移 / 升级提示？}
+    E -- 是 --> F[specnfc doctor\n作用：识别配置漂移、文档缺口、入口投影问题]
+    F --> G[specnfc upgrade\n作用：把旧结构迁移到当前协议版本]
+    G --> H[再次执行 specnfc status]
+    E -- 否 --> H[继续按当前状态选择命令]
+    H --> I{当前目标是什么？}
+    I -- 新开一项需求/迭代 --> J[specnfc change create\n作用：创建新的正式 change]
+    I -- 继续已有 change --> K[specnfc change check <change-id>\n作用：查看当前 change 缺什么、卡在哪里]
+    I -- 只想看下一步 --> L[specnfc status\n作用：快速获得当前主动作]
+    I -- 只想查问题/阻断 --> M[specnfc doctor\n作用：找不一致、风险与修复建议]
+    I -- 涉及多人接口/service 对接 --> N[specnfc integration create/check/stage\n作用：管理协作边界与联调状态]
+    J --> O[补齐 change 主文档并持续 status/doctor]
+    K --> O
+    L --> O
+    M --> O
+    N --> O
+    O --> P[根据阶段推进到 verify / accept 并完成交付收口]
+```
+
+命令选择建议：
+
+- **不知道先做什么**：先跑 `specnfc status`
+- **怀疑仓结构不对、升级过期、入口漂移**：跑 `specnfc doctor`，必要时 `specnfc upgrade`
+- **要新开需求**：`specnfc change create`
+- **要继续已有工作**：`specnfc change check <change-id>`
+- **涉及多人接口 / service 协作**：`specnfc integration create/check/stage`
+- **只想确认当前仓是不是健康可继续**：`status` + `doctor` 组合看
+
+---
+
 ## 命令体系
 
 ### 主命令
