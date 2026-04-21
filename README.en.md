@@ -135,6 +135,90 @@ specnfc integration stage account-risk-api --cwd /path/to/repo --to aligned
 
 ---
 
+## Workflow Diagrams
+
+### New repository: recommended command path from zero to production use
+
+Use this when:
+
+- you are starting from a fresh repository
+- you want to know which command comes first and why
+
+```mermaid
+flowchart TD
+    A[Start with a new repository] --> B[specnfc init --profile enterprise\nPurpose: bootstrap protocol skeleton, .specnfc/.nfc/specs, and entry projections]
+    B --> C[specnfc status\nPurpose: confirm onboarding and show the current next step]
+    C --> D[specnfc change create <change-id> --title <title>\nPurpose: create a formal change object]
+    D --> E[specnfc change check <change-id>\nPurpose: inspect stage, missing docs, and blockers]
+    E --> F{Does this change require standalone technical design and selection?}
+    F -- Yes --> G[Fill 02-技术设计与选型.md\nUse for medium/high complexity, architecture tradeoffs, or technology selection]
+    F -- No --> H[Continue with 01-需求与方案.md and 03-任务计划与执行.md]
+    G --> I{Any interface / service / multi-person dependency?}
+    H --> I
+    I -- Yes --> J[specnfc integration create/check/stage\nPurpose: align provider/consumer/changes dependencies early]
+    I -- No --> K[Continue filling the main change documents]
+    J --> K
+    K --> L[Run specnfc status continuously\nPurpose: know the next best action]
+    K --> M[Run specnfc doctor continuously\nPurpose: detect protocol mismatch, drift, and missing pieces]
+    L --> N[Advance into verify / accept]
+    M --> N
+    N --> O[Finish 04-验收与交接.md\nPurpose: capture acceptance, delivery handoff, and closure]
+    O --> P[End with a maintainable formal dossier]
+```
+
+How to read it:
+
+- `init`: formally puts the project under protocol control, not just directory setup
+- `status`: tells you what to do next
+- `change create`: creates a formal work object
+- `change check`: tells you what is missing instead of relying on guesswork
+- `integration *`: resolves collaboration boundaries when interface or service dependencies exist
+- `doctor`: checks what is inconsistent before you keep moving
+
+### Mature repository: how to adopt specnfc and how to choose commands
+
+Use this when:
+
+- the repository is already active or mature
+- you are unsure whether to start with `init`, `status`, `doctor`, or `change`
+- you want to choose commands based on the current repository state
+
+```mermaid
+flowchart TD
+    A[Start with an existing mature repository] --> B{Has the repository already been onboarded into specnfc?}
+    B -- No --> C[specnfc init --profile enterprise\nPurpose: bring the existing repository under protocol control]
+    B -- Yes --> D[specnfc status\nPurpose: inspect current repository state, active changes, and recommended next step]
+    C --> D
+    D --> E{Any legacy structure, drift, or upgrade hint?}
+    E -- Yes --> F[specnfc doctor\nPurpose: detect config drift, missing docs, and projection issues]
+    F --> G[specnfc upgrade\nPurpose: migrate legacy structure to the current protocol version]
+    G --> H[Run specnfc status again]
+    E -- No --> H[Choose the next command from current state]
+    H --> I{What is your current goal?}
+    I -- Start a new requirement or iteration --> J[specnfc change create\nPurpose: create a new formal change]
+    I -- Continue an existing change --> K[specnfc change check <change-id>\nPurpose: inspect gaps, blockers, and next stage]
+    I -- Only want the next step --> L[specnfc status\nPurpose: get the current primary action]
+    I -- Only want to inspect issues or blockers --> M[specnfc doctor\nPurpose: identify inconsistencies, risks, and fixes]
+    I -- Interface / service coordination is involved --> N[specnfc integration create/check/stage\nPurpose: manage collaboration boundaries and alignment status]
+    J --> O[Continue filling change docs with status/doctor feedback]
+    K --> O
+    L --> O
+    M --> O
+    N --> O
+    O --> P[Advance into verify / accept and close the delivery loop]
+```
+
+Command selection guidelines:
+
+- **Do not know what to do first**: run `specnfc status`
+- **Suspect structure drift, outdated setup, or projection problems**: run `specnfc doctor`, then `specnfc upgrade` if needed
+- **Need to start a new requirement**: run `specnfc change create`
+- **Need to continue existing work**: run `specnfc change check <change-id>`
+- **Need multi-person interface / service coordination**: run `specnfc integration create/check/stage`
+- **Need a quick health signal for the repository**: use `status` together with `doctor`
+
+---
+
 ## Command System
 
 ### Main commands

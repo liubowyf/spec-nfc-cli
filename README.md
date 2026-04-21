@@ -216,6 +216,39 @@ flowchart TD
 - **涉及多人接口 / service 协作**：`specnfc integration create/check/stage`
 - **只想确认当前仓是不是健康可继续**：`status` + `doctor` 组合看
 
+### 多人协作：change 与 integration 的关系图
+
+适用场景：
+
+- 多个人分别负责不同 change
+- 这些 change 之间需要通过接口 / service 对接协同推进
+- 你想知道为什么有些时候不能只推进 change，而必须先处理 integration
+
+```mermaid
+flowchart LR
+    A[需求 A / change A] --> B[specnfc change create change-a]
+    C[需求 B / change B] --> D[specnfc change create change-b]
+    B --> E[补各自的需求、设计、计划文档]
+    D --> F[补各自的需求、设计、计划文档]
+    E --> G{两边是否存在接口 / service 依赖？}
+    F --> G
+    G -- 是 --> H[specnfc integration create <integration-id>\n把 provider / consumer / changes 绑定到一个对接对象]
+    H --> I[specnfc integration check\n检查契约、状态、阻断与待回写文档]
+    I --> J[specnfc integration stage\n推进 aligned / implementing / done]
+    J --> K[change A / change B 根据 integration 状态继续推进]
+    G -- 否 --> K
+    K --> L[各自持续 specnfc change check]
+    L --> M[各自进入 verify / accept]
+    M --> N[形成各自的 04-验收与交接.md]
+```
+
+这张图强调的是：
+
+- `change` 关注单项变更自己的需求、设计、实现、验收闭环
+- `integration` 关注多个 change 之间的接口 / service 协作边界
+- 当存在多人依赖时，`integration` 不是附属信息，而是正式协作对象
+- 如果 `integration` 还没对齐，相关 `change` 往往不应该盲目推进到后续阶段
+
 ---
 
 ## 命令体系
