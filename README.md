@@ -3,7 +3,6 @@
 [![npm version](https://img.shields.io/npm/v/spec-nfc.svg)](https://www.npmjs.com/package/spec-nfc)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-339933.svg)](https://nodejs.org/)
-[![CI](https://github.com/liubowyf/spec-nfc/actions/workflows/ci.yml/badge.svg)](https://github.com/liubowyf/spec-nfc/actions/workflows/ci.yml)
 
 中文 | [English](./README.en.md)
 
@@ -353,7 +352,8 @@ node ./scripts/pack-verify.mjs --json
 
 ## 贡献
 
-贡献说明见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
+- 贡献说明：[CONTRIBUTING.md](./CONTRIBUTING.md)
+- Issue triage：[.github/ISSUE_TRIAGE.md](./.github/ISSUE_TRIAGE.md)
 
 ## 安全
 
