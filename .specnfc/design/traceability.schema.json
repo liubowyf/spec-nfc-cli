@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "specnfc traceability report",
+  "type": "object",
+  "required": ["status", "changeId", "counts", "matrix", "gaps"],
+  "properties": {
+    "status": { "enum": ["missing", "not-adopted", "gaps", "complete"] },
+    "changeId": { "type": "string" },
+    "changeRoot": { "type": "string" },
+    "generatedAt": { "type": "string" },
+    "path": { "type": "string" },
+    "counts": {
+      "type": "object",
+      "properties": {
+        "requirements": { "type": "integer", "minimum": 0 },
+        "acceptanceCriteria": { "type": "integer", "minimum": 0 },
+        "tasks": { "type": "integer", "minimum": 0 },
+        "evidence": { "type": "integer", "minimum": 0 },
+        "documents": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": true
+    },
+    "matrix": {
+      "type": "object",
+      "properties": {
+        "requirements": { "type": "object" },
+        "acceptanceCriteria": { "type": "object" },
+        "tasks": { "type": "object" },
+        "evidence": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "gaps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["code", "message"],
+        "properties": {
+          "code": { "type": "string" },
+          "id": { "type": "string" },
+          "message": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "documents": { "type": "array" },
+    "occurrences": { "type": "array" }
+  },
+  "additionalProperties": true
+}

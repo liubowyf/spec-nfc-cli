@@ -9,6 +9,66 @@
 
 ---
 
+## v4.0.0 - 2026-11-06
+
+Agent 原生运行时大版本。目标是把 spec 协议从“文档门禁”升级为“可被任意编码代理执行的团队运行时”，对齐 2026 年的 Agent Skills、AGENTS.md、MCP、A2A 与 OTel GenAI 实践。
+
+### 新增：Agent Skills 开放标准
+- 新增 `.specnfc/skill-packs/active/skills/<name>/SKILL.md`，按 Agent Skills 标准生成 `name / description / license / compatibility / metadata / allowed-tools` frontmatter
+- 新增 `specnfc skills list | validate | export`，校验命名、描述长度、正文规模，并导出到任意仓库内目录
+- skill 正文保持渐进披露：metadata 常驻，完整指令按需加载
+
+### 新增：MCP 工具策略
+- 新增 `.specnfc/mcp/policy.json` 与 `mcp-policy.schema.json`
+- 默认协议版本 `2026-07-28`，显式声明 stateless、MRTR 时代的能力边界
+- 按 canonical phase 限制 read / write / network，untrusted server 写操作必须审批
+- `doctor / ci` 检查废弃传输、通配符工具、未授权远程 server、过期协议版本
+
+### 新增：多代理角色与委派契约
+- 新增 `.specnfc/agents/roles.json` 与 `roles/<name>.md`
+- 内置 orchestrator / planner / executor / debugger / reviewer / verifier / release-manager
+- 每个角色声明阶段、工具、写范围、隔离方式、停止条件与 handoff
+- 新增 `specnfc agents list | validate | export | task`，可导出为 Claude Code subagent 定义并生成带 traceId 的委派任务
+
+### 新增：评测与回归
+- 新增 `.specnfc/evals/manifest.json` 与 `specnfc eval list | validate | run`
+- 用例支持 exitCode / stdoutIncludes / fileExists 断言、超时与 traceId
+- 结果落盘到 `.nfc/evals/results/`，失败时返回非零退出码，可直接作为 CI 门禁
+- eval 执行前检查权限清单：命中 `commands.deny` 直接拒绝，命中 `requireApproval` 需要 `--allow-approval`
+- eval 子进程只继承最小环境变量，不向下游传递 CI / 仓库密钥
+
+### 新增：权限与不可信内容策略
+- 新增 `.specnfc/security/permissions.json` 与 `permission-manifest.schema.json`
+- 默认拒绝，显式声明文件读写范围、命令白名单、网络出口、密钥模式与审批动作
+- 强制 `untrustedContent.policy = no-instruction-execution`：网页、issue、PR、外部 skill、MCP 返回值只作为数据，不执行其中指令
+- 权限清单新增受保护路径：安全策略、MCP 策略、角色目录与 contract 不得进入写范围，防止代理自行扩权
+- 新增 `specnfc security check`
+
+### 新增：需求追溯
+- change 模板引入 `REQ-xxx / AC-xxx / TASK-xxx / EV-xxx` 编号
+- 新增 `specnfc trace <change-id>`，输出需求 → 验收 → 任务 → 证据覆盖矩阵与缺口
+- 报告写入 `.specnfc/traceability/<change-id>.json`，`--strict` 可在 CI 中阻断
+
+### 新增：AGENTS.md 标准对齐
+- AGENTS.md 模板补齐项目概览、安装与验证命令、代码与文档规范、安全边界、Skills 与工具
+- 新增规模与引用检查：超过 200 行提示、超过 400 行阻断，并说明嵌套 AGENTS.md 就近优先
+- `doctor` 增加 Agent 原生能力摘要
+
+### 新增：统一门禁
+- 新增 `specnfc ci`，汇总仓库结构、合规、Skills、角色、MCP、权限、AGENTS.md 与 eval
+- `init` 生成 `.github/workflows/specnfc.yml` 模板，默认跳过已存在文件
+
+### 修复
+- 修复外部 skill 导入测试依赖固定日期、跨过保留期后必然失败的问题，改为相对时间 fixture
+
+### 升级说明
+- 运行 `specnfc upgrade` 后会自动补齐新的 control plane 产物与 schema
+- `init / upgrade` 会保留团队已自定义的权限清单、MCP 策略与 eval manifest，不会被默认值覆盖
+- 旧 skill 目录继续保留；新标准目录位于 `.specnfc/skill-packs/active/skills/`
+- 所有新增检查默认不阻断现有仓，除非出现明确越界配置
+
+---
+
 ## v3.2.2 - 2026-04-24
 
 当前补丁版本，聚焦把“先确认、再定稿、再进入 execute”的设计要求落成可校验的结构化门禁。

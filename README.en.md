@@ -9,9 +9,12 @@
 `Spec nfc` is a **Spec-driven Coding protocol system** for team collaboration and AI Agent execution.  
 It turns “clarify → solution design → technical design & selection → task planning → execution → verification → delivery handoff” into a repository-native, inspectable, indexable, and upgradable workflow protocol.
 
+> Current release: **v4.0.0 (agent-native runtime)**. Adds Agent Skills, MCP tool policy, multi-agent roles, evaluation gates, permission manifests, and requirement traceability on top of the existing spec protocol.
+
 [Installation & Quick Start](#installation--quick-start) ·
 [Why Spec nfc](#why-spec-nfc) ·
 [Core Capabilities](#core-capabilities) ·
+[Agent-native capabilities](#agent-native-capabilities-v40) ·
 [Command System](#command-system) ·
 [Directory Model](#directory-model) ·
 [Changelog & Releases](#changelog--releases) ·
@@ -53,7 +56,44 @@ Typical scenarios:
 | Next-step protocol | `specnfc status` shows current stage, missing items, blockers, and recommended next actions |
 | Protocol consistency checks | `specnfc doctor` validates documents, projection drift, runtime writeback, and governance rules |
 | Chinese skill-pack | built-in workflow/support skills align prompts, writeback, and next-step guidance |
+| Agent Skills standard | generates `SKILL.md` skills that can be validated, progressively disclosed, and exported |
+| MCP tool policy | constrains external tool read/write/network access per phase; remote servers are untrusted by default |
+| Multi-agent roles | built-in orchestrator/planner/executor/reviewer roles with write scopes, isolation, and handoff |
+| Evaluation gates | `specnfc eval` runs in-repo cases and fails CI when expectations are not met |
+| Permissions & untrusted content | deny-by-default file/command/network manifest; external content is never executed as instructions |
+| Requirement traceability | `REQ / AC / TASK / EV` identifiers plus a `specnfc trace` coverage matrix |
+| Unified gate | `specnfc ci` aggregates structure, compliance, Skills, roles, MCP, permissions, entry files, and evals |
 | Conservative upgrade path | `specnfc upgrade` refreshes managed files while preserving conflicts for manual review |
+
+---
+
+## Agent-native capabilities (v4.0)
+
+v4.0 turns the protocol from document-only gates into a runtime that any coding agent can consume.
+
+| Standard | Repository location |
+| --- | --- |
+| AGENTS.md (nearest file wins) | root `AGENTS.md` plus optional nested files |
+| Agent Skills (`SKILL.md`) | `.specnfc/skill-packs/active/skills/<name>/SKILL.md` |
+| MCP `2026-07-28` | `.specnfc/mcp/policy.json` |
+| Multi-agent roles | `.specnfc/agents/roles.json` |
+| Delegation contract | `.nfc/tasks/<task-id>.json` |
+| Evaluations | `.specnfc/evals/manifest.json` |
+| Permissions | `.specnfc/security/permissions.json` |
+| Traceability | `.specnfc/traceability/<change-id>.json` |
+
+```bash
+specnfc skills validate
+specnfc skills export --to skills
+specnfc agents validate
+specnfc agents export --to .claude/agents
+specnfc eval run --suite smoke
+specnfc trace <change-id>
+specnfc security check
+specnfc ci
+```
+
+Design principles: progressive disclosure for skills, deny-by-default permissions, no execution of instructions found in untrusted content, and explicit requirement → acceptance → task → evidence links.
 
 ---
 
@@ -234,6 +274,12 @@ specnfc explain
 specnfc upgrade
 specnfc demo
 specnfc version
+specnfc skills
+specnfc agents
+specnfc eval
+specnfc trace
+specnfc security
+specnfc ci
 ```
 
 ### Recommended flow

@@ -12,6 +12,24 @@
 - 运行 `specnfc explain tools` 查看多工具接入方式
 - 运行 `specnfc explain skills` 查看个人 Skills 兼容规则
 
+## Agent 原生能力
+
+- `specnfc skills validate`：校验 Agent Skills（`SKILL.md`）标准
+- `specnfc agents validate`：校验多代理角色与阶段覆盖
+- `specnfc eval run`：运行仓内评测用例
+- `specnfc trace <change-id>`：检查需求 / 验收 / 任务 / 证据链
+- `specnfc security check`：检查权限清单与不可信内容策略
+- `specnfc ci`：运行完整协议门禁
+
+关键对象：
+
+- `.specnfc/skill-packs/active/skills/<name>/SKILL.md`
+- `.specnfc/agents/roles.json`
+- `.specnfc/mcp/policy.json`
+- `.specnfc/security/permissions.json`
+- `.specnfc/evals/manifest.json`
+- `.specnfc/traceability/<change-id>.json`
+
 ## 工具入口
 
 {{toolEntryMappingMarkdown}}

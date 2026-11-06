@@ -15,6 +15,8 @@ const DEFAULT_RULES = [
   ".nfc/sync/",
   ".nfc/imports/",
   ".nfc/skills/",
+  ".nfc/tasks/",
+  ".nfc/evals/",
   ".nfc/state/",
   "!.nfc/README.md",
   "!.nfc/runtime.json"

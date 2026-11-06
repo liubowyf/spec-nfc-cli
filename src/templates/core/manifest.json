@@ -55,6 +55,11 @@
       "mode": "skip-if-exists"
     },
     {
+      "source": "files/.github/workflows/specnfc.yml",
+      "target": ".github/workflows/specnfc.yml",
+      "mode": "skip-if-exists"
+    },
+    {
       "target": ".specnfc",
       "mode": "ensure-dir"
     },

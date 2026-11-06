@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "specnfc eval manifest",
+  "type": "object",
+  "required": ["version", "suites"],
+  "properties": {
+    "version": { "type": "integer", "minimum": 1 },
+    "defaults": {
+      "type": "object",
+      "properties": {
+        "timeoutMs": { "type": "integer", "minimum": 1 },
+        "failFast": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "suites": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["cases"],
+        "properties": {
+          "description": { "type": "string" },
+          "cases": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["id", "command"],
+              "properties": {
+                "id": { "type": "string", "minLength": 1 },
+                "description": { "type": "string" },
+                "command": { "type": "string", "minLength": 1 },
+                "timeoutMs": { "type": "integer", "minimum": 1 },
+                "tags": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "expect": {
+                  "type": "object",
+                  "properties": {
+                    "exitCode": {
+                      "anyOf": [
+                        { "type": "integer" },
+                        { "type": "array", "items": { "type": "integer" } }
+                      ]
+                    },
+                    "stdoutIncludes": { "type": "array", "items": { "type": "string" } },
+                    "stdoutExcludes": { "type": "array", "items": { "type": "string" } },
+                    "stderrIncludes": { "type": "array", "items": { "type": "string" } },
+                    "fileExists": { "type": "array", "items": { "type": "string" } }
+                  },
+                  "additionalProperties": true
+                }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

@@ -14,6 +14,12 @@
   upgrade     升级当前仓模板到最新版本
   version     查看版本信息
   integration 管理多人接口 / service 对接关系
+  skills      管理 Agent Skills（SKILL.md 标准）
+  agents      管理多代理角色、权限边界与委派任务
+  eval        运行 agent 评测与回归用例
+  trace       检查需求 / 验收 / 任务 / 证据链
+  security    检查权限清单与不可信内容策略
+  ci          运行完整协议门禁
 
 示例：
   specnfc init
@@ -28,6 +34,11 @@
   specnfc explain modules
   specnfc explain skills
   specnfc upgrade --dry-run
+  specnfc skills validate
+  specnfc agents validate
+  specnfc eval run
+  specnfc trace <change-id>
+  specnfc ci
 
 推荐主链路：
   1. specnfc init --profile enterprise

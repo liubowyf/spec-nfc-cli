@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "specnfc MCP tool policy",
+  "type": "object",
+  "required": ["version", "protocolVersion", "defaults", "servers", "phaseToolPolicy"],
+  "properties": {
+    "version": { "type": "integer", "minimum": 1 },
+    "protocolVersion": { "type": "string" },
+    "transport": { "enum": ["streamable-http", "stdio"] },
+    "stateless": { "type": "boolean" },
+    "defaults": {
+      "type": "object",
+      "properties": {
+        "trustTier": { "enum": ["untrusted", "workspace", "trusted"] },
+        "networkEgress": { "enum": ["deny", "allow"] },
+        "requireAuthorization": { "type": "boolean" },
+        "allowSampling": { "type": "boolean" },
+        "allowElicitation": { "type": "boolean" },
+        "allowRoots": { "type": "boolean" },
+        "cacheListResults": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "servers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "transport", "trustTier", "allowedTools"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "transport": { "enum": ["streamable-http", "stdio"] },
+          "trustTier": { "enum": ["untrusted", "workspace", "trusted"] },
+          "authorization": { "type": "string" },
+          "allowedTools": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "writeAccess": { "type": "boolean" },
+          "approvalFor": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "networkEgress": { "enum": ["deny", "allow"] },
+          "allowHosts": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "capabilities": {
+            "type": "object",
+            "properties": {
+              "sampling": { "type": "boolean" },
+              "logging": { "type": "boolean" },
+              "roots": { "type": "boolean" }
+            },
+            "additionalProperties": true
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "phaseToolPolicy": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "readTools": { "enum": ["deny", "approval", "allow"] },
+          "writeTools": { "enum": ["deny", "approval", "allow"] },
+          "network": { "enum": ["deny", "approval", "allow"] }
+        },
+        "additionalProperties": true
+      }
+    },
+    "approvalRequiredFor": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "deniedToolPatterns": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "telemetry": {
+      "type": "object",
+      "properties": {
+        "traceContext": { "type": "string" },
+        "attributes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

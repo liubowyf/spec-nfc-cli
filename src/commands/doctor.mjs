@@ -109,6 +109,27 @@ export async function runDoctor({ flags, runtime }) {
             : ["当前无"]
         },
         {
+          title: "Agent 原生能力",
+          items: [
+            `MCP 工具策略：${report.mcpPolicy?.status ?? "未知"}（servers: ${report.mcpPolicy?.serverCount ?? 0}，protocol: ${report.mcpPolicy?.protocolVersion ?? "未声明"}）`,
+            `权限清单：${report.securityPolicy?.status ?? "未知"}（default: ${report.securityPolicy?.defaultPolicy ?? "未声明"}）`,
+            `Agent 角色：${report.agentRoles?.status ?? "未知"}（roles: ${report.agentRoles?.roleCount ?? 0}）`,
+            `AGENTS.md 标准：${report.agentInstructions?.status ?? "未知"}（lines: ${report.agentInstructions?.lineCount ?? 0}）`,
+            ...((report.mcpPolicy?.issues ?? [])
+              .filter((issue) => issue.severity === "blocking")
+              .map((issue) => `MCP 阻塞：${issue.code}`)),
+            ...((report.securityPolicy?.issues ?? [])
+              .filter((issue) => issue.severity === "blocking")
+              .map((issue) => `安全阻塞：${issue.code}`)),
+            ...((report.agentRoles?.issues ?? [])
+              .filter((issue) => issue.severity === "blocking")
+              .map((issue) => `角色阻塞：${issue.code}`)),
+            ...((report.agentInstructions?.issues ?? [])
+              .filter((issue) => issue.severity === "blocking")
+              .map((issue) => `入口阻塞：${issue.code}`))
+          ]
+        },
+        {
           title: "合规摘要",
           items: report.compliance
             ? [

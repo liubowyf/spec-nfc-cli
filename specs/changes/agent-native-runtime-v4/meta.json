@@ -1,0 +1,17 @@
+{
+  "id": "agent-native-runtime-v4",
+  "title": "Spec nfc v4.0 Agent 原生运行时升级",
+  "type": "design-system",
+  "docRoles": {
+    "requirementsAndSolution": "01-需求与方案.md",
+    "technicalDesign": "02-技术设计与选型.md",
+    "planAndExecution": "03-任务计划与执行.md",
+    "acceptanceAndHandoff": "04-验收与交接.md"
+  },
+  "canonicalStage": "accept",
+  "legacyStage": "handoff",
+  "stage": "handoff",
+  "createdAt": "2026-11-06T00:00:00.000Z",
+  "updatedAt": "2026-11-06T00:00:00.000Z",
+  "templateVersion": "4.0.0"
+}

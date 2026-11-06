@@ -25,3 +25,21 @@
 - 入口文件是否写明个人 Skills 兼容规则
 - governance 模块下是否存在 `personal-skills.md`
 - `opencode.json` 是否把治理规则纳入 instructions
+
+## 标准技能目录
+
+v4.0 起，仓内技能同时生成符合 Agent Skills 标准的目录：
+
+- `.specnfc/skill-packs/active/skills/<name>/SKILL.md`
+- frontmatter 至少包含 `name` 与 `description`
+- 启动时只加载 metadata，激活后才加载正文，符合渐进披露
+
+常用命令：
+
+```bash
+specnfc skills list
+specnfc skills validate
+specnfc skills export --to skills
+```
+
+导出目录位于当前仓库内，可被任意支持 `SKILL.md` 的代理加载；导出前建议先运行 `specnfc skills validate`。

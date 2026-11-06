@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "specnfc agent delegation task",
+  "type": "object",
+  "required": ["taskId", "traceId", "role", "changeId", "goal", "acceptance", "isolation", "stopConditions", "handoff"],
+  "properties": {
+    "taskId": { "type": "string" },
+    "traceId": { "type": "string" },
+    "parentTraceId": { "type": ["string", "null"] },
+    "role": { "type": "string" },
+    "changeId": { "type": "string" },
+    "goal": { "type": "string" },
+    "inputs": {
+      "type": "object",
+      "properties": {
+        "documents": { "type": "array", "items": { "type": "string" } },
+        "codeRefs": { "type": "array", "items": { "type": "string" } },
+        "evidenceRefs": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "constraints": {
+      "type": "object",
+      "properties": {
+        "allowedPaths": { "type": "array", "items": { "type": "string" } },
+        "forbiddenPaths": { "type": "array", "items": { "type": "string" } },
+        "maxChangedFiles": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": true
+    },
+    "acceptance": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "criterion"],
+        "properties": {
+          "id": { "type": "string" },
+          "criterion": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "budget": {
+      "type": "object",
+      "properties": {
+        "maxToolCalls": { "type": "integer", "minimum": 1 },
+        "maxMinutes": { "type": "integer", "minimum": 1 },
+        "maxChangedLines": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": true
+    },
+    "isolation": {
+      "type": "object",
+      "properties": {
+        "mode": { "enum": ["none", "shared", "worktree"] },
+        "branch": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "stopConditions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "handoff": {
+      "type": "object",
+      "properties": {
+        "to": { "type": "string" },
+        "artifact": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

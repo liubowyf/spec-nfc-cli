@@ -1,0 +1,19 @@
+.omx/
+.serena/
+.DS_Store
+output.png
+findings.md
+progress.md
+task_plan.md
+
+# override user global ignores for repo files
+!README.md
+!package.json
+!package-lock.json
+!**/*.json
+!dist/
+!dist/**
+dist/public/
+dist/release/
+docs/
+docs/09-汇报材料/

@@ -1,6 +1,6 @@
 {
   "name": "spec-nfc",
-  "version": "3.2.2",
+  "version": "4.0.0",
   "description": "Spec-driven Coding 协议与 CLI 工具仓",
   "type": "module",
   "private": true,

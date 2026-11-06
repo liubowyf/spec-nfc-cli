@@ -9,6 +9,10 @@ import { fileURLToPath } from "node:url";
 const PROJECT_ROOT = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const CLI_PATH = path.join(PROJECT_ROOT, "bin/specnfc.mjs");
 
+function isoDaysFromNow(days) {
+  return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+}
+
 test("status 会汇总外部 skills 导入物的 namespace / trust tier / 待回写状态", async () => {
   const cwd = await mkdtemp(path.join(tmpdir(), "specnfc-external-import-status-"));
 
@@ -31,7 +35,7 @@ test("status 会汇总外部 skills 导入物的 namespace / trust tier / 待回
         outputArtifacts: ["artifacts/notes.md"],
         evidenceRefs: ["specs/changes/demo-change/status.md"],
         requestedWritebacks: [{ targetDocPath: "specs/changes/demo-change/status.md", writebackType: "append" }],
-        createdAt: "2026-04-15T09:00:00Z"
+        createdAt: isoDaysFromNow(-1)
       },
       writebackRequest: {
         requestedWritebacks: [{ targetDocPath: "specs/changes/demo-change/status.md", writebackType: "append" }],
@@ -41,8 +45,8 @@ test("status 会汇总外部 skills 导入物的 namespace / trust tier / 待回
         classification: "internal",
         containsSensitiveData: false,
         owner: "dev-a",
-        createdAt: "2026-04-15T09:00:00Z",
-        expiresAt: "2026-05-01T00:00:00Z",
+        createdAt: isoDaysFromNow(-1),
+        expiresAt: isoDaysFromNow(14),
         accessPolicy: "project-members"
       }
     });
@@ -83,7 +87,7 @@ test("doctor 会把 governed 外部导入物未写回、过保留期与安全违
         outputArtifacts: ["artifacts/raw-sensitive.txt"],
         evidenceRefs: ["specs/changes/demo-change/acceptance.md"],
         requestedWritebacks: [{ targetDocPath: "specs/changes/demo-change/acceptance.md", writebackType: "replace" }],
-        createdAt: "2026-04-01T09:00:00Z"
+        createdAt: isoDaysFromNow(-10)
       },
       writebackRequest: {
         requestedWritebacks: [{ targetDocPath: "specs/changes/demo-change/acceptance.md", writebackType: "replace" }],
@@ -93,8 +97,8 @@ test("doctor 会把 governed 外部导入物未写回、过保留期与安全违
         classification: "sensitive",
         containsSensitiveData: true,
         owner: "dev-b",
-        createdAt: "2026-04-01T09:00:00Z",
-        expiresAt: "2026-04-02T00:00:00Z",
+        createdAt: isoDaysFromNow(-10),
+        expiresAt: isoDaysFromNow(-1),
         accessPolicy: "governance-only"
       }
     });

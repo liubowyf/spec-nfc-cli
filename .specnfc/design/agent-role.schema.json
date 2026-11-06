@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "specnfc agent role catalog",
+  "type": "object",
+  "required": ["version", "namespace", "roles"],
+  "properties": {
+    "version": { "type": "string" },
+    "namespace": { "type": "string" },
+    "canonicalPhases": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "roles": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "description", "phases", "tools", "canWrite"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "label": { "type": "string" },
+          "description": { "type": "string" },
+          "phases": {
+            "type": "array",
+            "items": { "enum": ["clarify", "design", "plan", "execute", "verify", "accept", "archive"] }
+          },
+          "tools": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "canWrite": { "type": "boolean" },
+          "writeScopes": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "isolation": { "enum": ["none", "shared", "worktree"] },
+          "delegates": { "type": "boolean" },
+          "requiresApproval": { "type": "boolean" },
+          "handoffTo": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "stopConditions": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "handoffContract": { "type": "object" }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

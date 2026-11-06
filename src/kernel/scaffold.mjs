@@ -10,6 +10,12 @@ import { inspectGovernanceRecords, syncGovernanceRuntimeArtifacts } from "./gove
 import { inspectGovernanceRegistries, syncGovernanceRegistries } from "./governance-registries.mjs";
 import { inspectRuntimeAudit, syncRuntimeAuditArtifacts } from "./runtime-audit.mjs";
 import { inspectExternalSkillImports } from "./external-skill-imports.mjs";
+import { buildAgentSkillArtifacts } from "./agent-skills.mjs";
+import { buildDefaultMcpPolicy, inspectMcpPolicy } from "./mcp-policy.mjs";
+import { buildDefaultPermissions, inspectSecurityPolicy } from "./security-policy.mjs";
+import { buildAgentRoleArtifacts, inspectAgentRoles } from "./agent-roles.mjs";
+import { buildDefaultEvalManifest } from "./evals.mjs";
+import { inspectAgentInstructions } from "./agent-instructions.mjs";
 import {
   getBuiltInGovernanceSkillDefinitions,
   getBuiltInPlaybookDefinitions,
@@ -166,6 +172,7 @@ export async function refreshProtocolPlaneFiles({ repoRoot, config, dryRun = fal
   const repoPaths = getRepoPaths(repoRoot);
   const tracked = {};
   const created = [];
+  const preserved = [];
   const artifacts = await buildProtocolPlaneArtifacts({
     repositoryName,
     packageVersion,
@@ -185,6 +192,14 @@ export async function refreshProtocolPlaneFiles({ repoRoot, config, dryRun = fal
       continue;
     }
 
+    if (artifact.preserveExisting && (await pathExists(targetPath))) {
+      if (!dryRun) {
+        tracked[artifact.target] = hashManagedContent(await readText(targetPath));
+      }
+      preserved.push(artifact.target);
+      continue;
+    }
+
     if (!dryRun) {
       if (artifact.format === "json") {
         await writeJson(targetPath, artifact.content);
@@ -201,7 +216,8 @@ export async function refreshProtocolPlaneFiles({ repoRoot, config, dryRun = fal
 
   return {
     tracked,
-    created: unique(created)
+    created: unique(created),
+    preserved: unique(preserved)
   };
 }
 
@@ -230,6 +246,13 @@ async function buildProtocolPlaneArtifacts({ repositoryName, packageVersion, pro
     ".specnfc/skill-packs/active/prompts",
     ".specnfc/skill-packs/active/playbooks",
     ".specnfc/skill-packs/active/templates",
+    ".specnfc/skill-packs/active/skills",
+    ".specnfc/agents",
+    ".specnfc/agents/roles",
+    ".specnfc/mcp",
+    ".specnfc/security",
+    ".specnfc/evals",
+    ".specnfc/traceability",
     ".specnfc/projections",
     ".specnfc/projections/agents",
     ".specnfc/projections/claude",
@@ -259,7 +282,10 @@ async function buildProtocolPlaneArtifacts({ repositoryName, packageVersion, pro
     ".nfc/specs/derived",
     ".nfc/specs/scratch",
     ".nfc/sync",
-    ".nfc/imports"
+    ".nfc/imports",
+    ".nfc/tasks",
+    ".nfc/evals",
+    ".nfc/evals/results"
   ].map((target) => ({ kind: "dir", target }));
 
   const files = [
@@ -858,6 +884,24 @@ async function buildProtocolPlaneArtifacts({ repositoryName, packageVersion, pro
       target: ".nfc/logs/runtime-events.ndjson",
       format: "text",
       content: ""
+    },
+    {
+      target: ".specnfc/mcp/policy.json",
+      format: "json",
+      content: buildDefaultMcpPolicy(),
+      preserveExisting: true
+    },
+    {
+      target: ".specnfc/security/permissions.json",
+      format: "json",
+      content: buildDefaultPermissions(),
+      preserveExisting: true
+    },
+    {
+      target: ".specnfc/evals/manifest.json",
+      format: "json",
+      content: buildDefaultEvalManifest(),
+      preserveExisting: true
     }
   ].map((item) => ({ kind: "file", ...item }));
 
@@ -894,7 +938,18 @@ async function buildProtocolPlaneArtifacts({ repositoryName, packageVersion, pro
     }))
   ];
 
-  return [...dirs, ...files, ...skillArtifacts, ...designArtifacts];
+  const agentSkillArtifacts = buildAgentSkillArtifacts({ version: packageVersion }).map((skill) => ({
+    kind: "file",
+    target: skill.target,
+    format: "text",
+    content: skill.content
+  }));
+  const agentRoleArtifacts = buildAgentRoleArtifacts({ version: packageVersion }).map((artifact) => ({
+    kind: "file",
+    ...artifact
+  }));
+
+  return [...dirs, ...files, ...skillArtifacts, ...agentSkillArtifacts, ...agentRoleArtifacts, ...designArtifacts];
 }
 
 async function loadProtocolDesignSchemaArtifacts() {
@@ -1041,6 +1096,20 @@ export async function inspectRepository(repoRoot) {
     repoRoot,
     repoPaths
   });
+  const mcpPolicy = await inspectMcpPolicy({ repoRoot });
+  const securityPolicy = await inspectSecurityPolicy({ repoRoot });
+  const agentRoles = await inspectAgentRoles({ repoRoot });
+  const agentInstructions = await inspectAgentInstructions({ repoRoot });
+  for (const issue of [
+    ...(mcpPolicy.issues ?? []),
+    ...(securityPolicy.issues ?? []),
+    ...(agentRoles.issues ?? []),
+    ...(agentInstructions.issues ?? [])
+  ]) {
+    if (issue.severity === "blocking") {
+      risks.push({ code: issue.code, message: issue.message });
+    }
+  }
   const governanceMode = await readRepositoryGovernanceMode(repoRoot, "guided");
   await syncGovernanceRegistries({
     repoRoot,
@@ -1132,6 +1201,10 @@ export async function inspectRepository(repoRoot) {
     governanceRecords,
     governanceRegistries,
     externalSkillImports,
+    mcpPolicy,
+    securityPolicy,
+    agentRoles,
+    agentInstructions,
     runtimeAudit,
     controlPlane,
     nextStepProtocol,

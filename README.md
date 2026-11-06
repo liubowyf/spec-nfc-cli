@@ -9,9 +9,12 @@
 `Spec nfc` 是一个面向团队协作与 AI Agent 落地的 **Spec-driven Coding 协议系统**。  
 它把“需求澄清 → 方案设计 → 技术设计与选型 → 任务计划 → 执行实现 → 验证验收 → 交付归档”固化成仓内可检查、可索引、可升级的协作协议。
 
+> 当前版本：**v4.0.0（Agent 原生运行时）**。在原有 spec 协议之上增加 Agent Skills、MCP 工具策略、多代理角色、评测门禁、权限清单与需求追溯。
+
 [安装与快速开始](#安装与快速开始) ·
 [为什么使用-spec-nfc](#为什么使用-spec-nfc) ·
 [核心能力](#核心能力) ·
+[Agent 原生能力](#agent-原生能力v40) ·
 [命令体系](#命令体系) ·
 [目录结构](#目录结构) ·
 [更新记录与-releases](#更新记录与-releases) ·
@@ -52,7 +55,87 @@
 | 下一步协议 | `specnfc status` 输出当前阶段、缺失项、阻断项与推荐下一步 |
 | 协议一致性校验 | `specnfc doctor` 检查文档完整性、投影漂移、运行时回写与治理规则 |
 | 中文 skill-pack | 内置中文 workflow / support skills，把流程提示、回写、下一步建议纳入仓内协议 |
+| Agent Skills 标准 | 按 `SKILL.md` 开放标准生成技能，支持校验、渐进披露与跨工具导出 |
+| MCP 工具策略 | 按阶段约束外部工具的读、写与网络出口，默认不信任远程 server |
+| 多代理角色 | 内置 orchestrator / planner / executor / reviewer 等角色，声明写范围、隔离与交接 |
+| 评测门禁 | `specnfc eval` 运行仓内评测用例，失败即非零退出，可直接接入 CI |
+| 权限与不可信内容 | 默认拒绝的文件 / 命令 / 网络权限清单，禁止执行外部内容中的指令 |
+| 需求追溯 | `REQ / AC / TASK / EV` 编号与 `specnfc trace` 覆盖矩阵 |
+| 统一门禁 | `specnfc ci` 汇总结构、合规、Skills、角色、MCP、权限、入口与评测 |
 | 保守升级 | `specnfc upgrade` 支持受管文件刷新、冲突跳过、旧仓迁移与结构升级 |
+
+---
+
+## Agent 原生能力（v4.0）
+
+v4.0 把 spec 协议从“文档门禁”推进到“可被任意编码代理执行的团队运行时”，对齐 2026 年主流开放标准：
+
+> 完整现状评估、差距分析、数据契约与设计决策见 [`specs/changes/agent-native-runtime-v4/`](./specs/changes/agent-native-runtime-v4/)。
+
+| 标准 / 实践 | 本仓落点 |
+| --- | --- |
+| AGENTS.md（LF Agentic AI Foundation，就近优先） | 根入口 + 规模 / section / 引用检查，支持嵌套 AGENTS.md |
+| Agent Skills（`SKILL.md`，渐进披露） | `.specnfc/skill-packs/active/skills/<name>/SKILL.md` |
+| MCP `2026-07-28`（stateless / MRTR / 扩展框架） | `.specnfc/mcp/policy.json` 按阶段约束工具 |
+| 多代理编排（orchestrator-worker + worktree 隔离） | `.specnfc/agents/roles.json` 与委派任务契约 |
+| OTel GenAI 观测约定 | eval / 任务契约携带 `traceId` 与 GenAI 属性建议 |
+| 最小权限与 prompt injection 防御 | `.specnfc/security/permissions.json` |
+
+### 1）Agent Skills
+
+```bash
+specnfc skills list
+specnfc skills validate
+specnfc skills export --to skills
+```
+
+- 每个 skill 是独立目录，`SKILL.md` frontmatter 包含 `name / description / metadata / allowed-tools`
+- 启动时只加载 name + description，激活后才加载正文，符合渐进披露
+- `export` 可把技能导出给任何支持 Agent Skills 的代理加载
+
+### 2）MCP 工具策略
+
+```bash
+cat .specnfc/mcp/policy.json
+specnfc doctor
+```
+
+- 默认 `trustTier: untrusted`、`networkEgress: deny`
+- `clarify / design` 禁止写工具；`execute / verify` 的写与联网需要审批
+- 通配符工具授权、untrusted server 无审批写、废弃传输都会被 `doctor / ci` 阻断
+
+### 3）多代理角色与委派
+
+```bash
+specnfc agents list
+specnfc agents validate
+specnfc agents export --to .claude/agents
+specnfc agents task executor --change <change-id> --goal "补齐回归测试"
+```
+
+- 角色声明阶段、工具、写范围、隔离方式、停止条件与交接对象
+- `task` 生成带 `traceId`、预算、验收标准与 isolation 的委派任务契约
+
+### 4）评测与追溯
+
+```bash
+specnfc eval run --suite smoke
+specnfc trace <change-id>
+```
+
+- eval 用例定义在 `.specnfc/evals/manifest.json`，结果写入 `.nfc/evals/results/`
+- change 文档使用 `REQ-001 / AC-001 / TASK-001 / EV-001` 编号
+- `trace` 输出需求 → 验收 → 任务 → 证据覆盖矩阵；`--strict` 可阻断缺口
+
+### 5）权限与统一门禁
+
+```bash
+specnfc security check
+specnfc ci
+```
+
+- 权限清单默认拒绝；危险命令、过宽写范围、无边界网络出口都会阻断
+- `ci` 汇总仓库结构、合规、Skills、角色、MCP、权限、AGENTS.md 与 eval，失败返回非零退出码
 
 ---
 
@@ -266,6 +349,12 @@ specnfc explain
 specnfc upgrade
 specnfc demo
 specnfc version
+specnfc skills
+specnfc agents
+specnfc eval
+specnfc trace
+specnfc security
+specnfc ci
 ```
 
 ### 推荐主链路
@@ -306,6 +395,12 @@ status / doctor 持续收口
 - 多层索引
 - 治理模式与豁免
 - skill-pack 快照
+- Agent Skills（`skill-packs/active/skills/`）
+- Agent 角色与委派契约（`agents/`）
+- MCP 工具策略（`mcp/`）
+- 权限清单与不可信内容策略（`security/`）
+- 评测用例与结果（`evals/`）
+- 需求追溯报告（`traceability/`）
 - 多工具入口投影策略
 
 ### `.nfc/`
@@ -316,6 +411,7 @@ status / doctor 持续收口
 - 计划草稿与中间讨论稿
 - 写回队列与同步状态
 - 会话状态与交接记录
+- 委派任务契约（`tasks/`）
 
 ### `specs/`
 
@@ -457,10 +553,14 @@ node ./scripts/pack-verify.mjs --json
 - 多层索引与项目记忆骨架
 - 中文 skill-pack
 - 多工具入口投影
+- Agent Skills、MCP 策略、多代理角色、评测、权限与追溯（v4.0）
 - 公开发布与 npm 分发
 
 后续会继续补强：
 
+- A2A v1.0 signed agent card 导出与跨组织 agent 互操作
+- 评测断言的结构化扩展（JSONPath / 语义 rubric / LLM-as-judge）
+- OTel GenAI span 的本地导出与 trace 可视化
 - 更细粒度的异常路径与回归样例
 - 更强的 skill 治理与推荐能力
 - 更完整的项目 / 团队层索引协作实践

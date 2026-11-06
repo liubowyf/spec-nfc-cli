@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "specnfc permission manifest",
+  "type": "object",
+  "required": ["version", "default", "filesystem", "commands", "network", "untrustedContent", "approvals"],
+  "properties": {
+    "version": { "type": "integer", "minimum": 1 },
+    "default": { "enum": ["deny", "allow"] },
+    "filesystem": {
+      "type": "object",
+      "properties": {
+        "read": { "type": "array", "items": { "type": "string" } },
+        "write": { "type": "array", "items": { "type": "string" } },
+        "protected": { "type": "array", "items": { "type": "string" } },
+        "deny": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "commands": {
+      "type": "object",
+      "properties": {
+        "allow": { "type": "array", "items": { "type": "string" } },
+        "deny": { "type": "array", "items": { "type": "string" } },
+        "requireApproval": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "network": {
+      "type": "object",
+      "properties": {
+        "egress": { "enum": ["deny", "allow"] },
+        "allowHosts": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "secrets": {
+      "type": "object",
+      "properties": {
+        "readEnv": { "type": "array", "items": { "type": "string" } },
+        "denyPatterns": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "untrustedContent": {
+      "type": "object",
+      "required": ["policy"],
+      "properties": {
+        "policy": { "enum": ["no-instruction-execution"] },
+        "sources": { "type": "array", "items": { "type": "string" } },
+        "requireProvenance": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    },
+    "approvals": {
+      "type": "object",
+      "properties": {
+        "destructive": { "type": "boolean" },
+        "release": { "type": "boolean" },
+        "network": { "type": "boolean" },
+        "credentialAccess": { "type": "boolean" }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

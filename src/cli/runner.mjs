@@ -10,6 +10,12 @@ import { runExplain } from "../commands/explain.mjs";
 import { runUpgrade } from "../commands/upgrade.mjs";
 import { runVersion } from "../commands/version.mjs";
 import { runIntegration } from "../commands/integration.mjs";
+import { runSkills } from "../commands/skills.mjs";
+import { runAgents } from "../commands/agents.mjs";
+import { runEval } from "../commands/eval.mjs";
+import { runTrace } from "../commands/trace.mjs";
+import { runSecurity } from "../commands/security.mjs";
+import { runCi } from "../commands/ci.mjs";
 import { getHelpPath, resolveRepoRoot } from "../kernel/paths.mjs";
 import { readText } from "../utils/fs.mjs";
 
@@ -23,7 +29,13 @@ const COMMANDS = {
   explain: runExplain,
   upgrade: runUpgrade,
   version: runVersion,
-  integration: runIntegration
+  integration: runIntegration,
+  skills: runSkills,
+  agents: runAgents,
+  eval: runEval,
+  trace: runTrace,
+  security: runSecurity,
+  ci: runCi
 };
 
 export async function runCli(argv, runtime) {
@@ -82,7 +94,7 @@ export async function runCli(argv, runtime) {
       runtime
     });
     await printResult(result, { asJson, stdout: runtime.stdout, stderr: runtime.stderr });
-    return result.ok ? 0 : mapErrorCodeToExitCode(result.error.code);
+    return result.ok ? (result.exitCode ?? 0) : mapErrorCodeToExitCode(result.error.code);
   } catch (error) {
     const result = createErrorResult({
       command: parsed.command,
